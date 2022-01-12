@@ -25,8 +25,6 @@ def import_body3D(objects, is_tracking_on, body_format):
         objects (list[sl.ObjectData]) 
     '''
 
-    data_body=0
-    data_body_list=[]
     id_body=-1 
     time_body=-1
     joints_body=-1
@@ -35,12 +33,9 @@ def import_body3D(objects, is_tracking_on, body_format):
     for obj in objects:
         if render_object(obj, is_tracking_on):
             if len(obj.keypoint) > 0:
-                color = generate_color_id_u(obj.id)
                 # POSE_18
                 if body_format == sl.BODY_FORMAT.POSE_18:
                     #Get skeleton data joints
-
-                    #ID_body, time_stamp, joints,
 
                     joints={
                         'Nose':obj.keypoint[0],
@@ -66,9 +61,10 @@ def import_body3D(objects, is_tracking_on, body_format):
                         'EarRight':obj.keypoint[16],
                         'EarLeft':obj.keypoint[17],
                     }
-
+                    
+                    #ID_body, time_stamp, joints
                     id_body=obj.id
-                    time_body=str(datetime.datetime.utcnow())
+                    time_body=str(datetime.datetime.now())
                     joints_body=joints
 
     
@@ -119,7 +115,7 @@ def import_body3D(objects, is_tracking_on, body_format):
 
                     #ID_body, time_stamp, joints
                     id_body=obj.id
-                    time_body=str(datetime.datetime.utcnow())
+                    time_body=str(datetime.datetime.now())
                     joints_body=joints
 
         

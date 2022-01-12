@@ -31,6 +31,7 @@ from cv_viewer import tracking_importer as cv_importer
 import numpy as np
 
 import pandas as pd
+import datetime
 
 if __name__ == "__main__":
     print("Running Body Tracking sample ... Press 'q' to quit")
@@ -93,7 +94,12 @@ if __name__ == "__main__":
     # Create ZED objects filled in the main loop
     bodies = sl.Objects()
     image = sl.Mat()
+
+    #Create variables for JSON file
+    date_exp=datetime.datetime.now()
     data_body_list=[]
+
+    exp_name=f"Zed2i_{date_exp.date().strftime('%Y-%m-%d')}_{date_exp.hour}{date_exp.minute}"
 
     if len(bodies.object_list) > 0:
         first_object = bodies.object_list[0]
@@ -101,9 +107,11 @@ if __name__ == "__main__":
         # Display the 3D keypoint coordinates of the first detected person
         print("\n Keypoint 3D ")
 
+    start_time = datetime.datetime.now()
     while viewer.is_available():
         # Grab an image
         if zed.grab() == sl.ERROR_CODE.SUCCESS:
+            
             # Retrieve left image
             zed.retrieve_image(image, sl.VIEW.LEFT, sl.MEM.CPU, display_resolution)
             # Retrieve objects
@@ -115,15 +123,27 @@ if __name__ == "__main__":
             image_left_ocv = image.get_data()
             cv_viewer.render_2D(image_left_ocv,image_scale,bodies.object_list, obj_param.enable_tracking, obj_param.body_format)
 
-            id_body, time_body, joints_body=cv_importer.import_body3D(bodies.object_list, obj_param.enable_tracking, obj_param.body_format)
-            if id_body >-1:           
-                data_body_list.append([id_body, time_body, joints_body])
+            end_time = datetime.datetime.now()
+
+            time_diff = (end_time - start_time)
+            execution_time = time_diff.total_seconds() * 1000
+
+            if execution_time > 200:                
+                id_body, time_body, joints_body=cv_importer.import_body3D(bodies.object_list, obj_param.enable_tracking, obj_param.body_format)
+                if id_body >-1:         
+                    data_body_list.append([exp_name, '34', '183', id_body, time_body, joints_body])
+                
+                start_time=datetime.datetime.now()
 
             cv2.imshow("ZED | 2D View", image_left_ocv)
             cv2.waitKey(10)
 
     viewer.exit()
-    df = pd.DataFrame(data_body_list, columns=['ID_subject', 'time', 'joints'])
+
+    df = pd.DataFrame(data_body_list, columns=['ID_experiment','body_format_pose','height_device','ID_subject', 'time', 'joints'])
+
+    df.to_json(f"{exp_name}.json", orient='table')
+
     print(df)
 
     image.free(sl.MEM.CPU)
