@@ -129,9 +129,9 @@ if __name__ == "__main__":
             execution_time = time_diff.total_seconds() * 1000
 
             if execution_time > 200:                
-                id_body, time_body, joints_body=cv_importer.import_body3D(bodies.object_list, obj_param.enable_tracking, obj_param.body_format)
+                id_body, date, time_body, joints_body, orientations_body=cv_importer.import_body3D(bodies.object_list, obj_param.enable_tracking, obj_param.body_format)
                 if id_body >-1:         
-                    data_body_list.append([exp_name, '34', '183', id_body, time_body, joints_body])
+                    data_body_list.append([exp_name, date, '183', id_body, time_body, joints_body])
                 
                 start_time=datetime.datetime.now()
 
@@ -140,9 +140,9 @@ if __name__ == "__main__":
 
     viewer.exit()
 
-    df = pd.DataFrame(data_body_list, columns=['ID_experiment','body_format_pose','height_device','ID_subject', 'time', 'joints'])
+    df = pd.DataFrame(data_body_list, columns=['ID_exp','date_exp','height','ID_subject', 'time', 'joints', 'orientations'])
 
-    df.to_json(f"{exp_name}.json", orient='table')
+    df.to_json(f"{exp_name}.json", orient='index')
 
     print(df)
 
